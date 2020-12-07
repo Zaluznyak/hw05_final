@@ -95,24 +95,30 @@ class UrlTests(Settings):
 
     def test_redirect_guest(self):
         """Страницы имеют соответствующий redirect для гостя."""
+        username = UrlTests.User.username
+        post_id = UrlTests.post.id
         redirects = {
             reverse('login') + '?next=' +
             reverse('new_post'): reverse('new_post'),
             reverse('login') + '?next=' +
-            reverse('post_edit', kwargs={'username': 'test', 'post_id': 1}):
-            reverse('post_edit', kwargs={'username': 'test', 'post_id': 1}),
+            reverse('post_edit', kwargs={'username': username,
+                                         'post_id': post_id}):
+            reverse('post_edit', kwargs={'username': username,
+                                         'post_id': post_id}),
             reverse('login') + '?next=' +
-            reverse('add_comment', kwargs={'username': 'test', 'post_id': 1}):
-            reverse('add_comment', kwargs={'username': 'test', 'post_id': 1}),
+            reverse('add_comment', kwargs={'username': username,
+                                           'post_id': post_id}):
+            reverse('add_comment', kwargs={'username': username,
+                                           'post_id': post_id}),
             reverse('login') + '?next=' +
-            reverse('profile_follow', kwargs={'username': 'test'}):
-            reverse('profile_follow', kwargs={'username': 'test'}),
+            reverse('profile_follow', kwargs={'username': username}):
+            reverse('profile_follow', kwargs={'username': username}),
             reverse('login') + '?next=' +
-            reverse('profile_unfollow', kwargs={'username': 'test'}):
-            reverse('profile_unfollow', kwargs={'username': 'test'}),
+            reverse('profile_unfollow', kwargs={'username': username}):
+            reverse('profile_unfollow', kwargs={'username': username}),
             reverse('login') + '?next=' +
-            reverse('profile_follow', kwargs={'username': 'test'}):
-            reverse('profile_follow', kwargs={'username': 'test'}),
+            reverse('profile_follow', kwargs={'username': username}):
+            reverse('profile_follow', kwargs={'username': username}),
             reverse('login') + '?next=' +
             reverse('follow_index'): reverse('follow_index'),
         }
@@ -126,10 +132,12 @@ class UrlTests(Settings):
 
     def test_redirect_other_user(self):
         """Post_edit имеет соответствующий redirect для не автора поста."""
-        rvs = reverse('post_edit', kwargs={'username': 'test', 'post_id': 1})
+        rvs = reverse('post_edit', kwargs={'username': UrlTests.User.username,
+                                           'post_id': UrlTests.post.id})
         response = self.authorized_client_2.get(rvs)
         self.assertRedirects(
             response,
-            reverse('post', kwargs={'username': 'test', 'post_id': 1}),
+            reverse('post', kwargs={'username': UrlTests.User.username,
+                                    'post_id': UrlTests.post.id}),
             msg_prefix=f'Страница {rvs} имеет неверный редирект'
             )
