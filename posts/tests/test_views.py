@@ -15,7 +15,7 @@ class ViewsTests(Settings):
             description='Текст_2',
             slug='test-slug2',
         )
-        cls.group2 = Group.objects.get(title='Название_2')
+        cls.group2 = Group.objects.get(slug='test-slug2')
 
     def test_img_tag(self):
         """На страницах есть тег img."""
@@ -40,7 +40,8 @@ class ViewsTests(Settings):
             ['new_post.html', reverse('new_post')],
             ['new_post.html', reverse(
                 'post_edit',
-                kwargs={'username': 'test', 'post_id': self.post.id})],
+                kwargs={'username': self.User.username,
+                        'post_id': self.post.id})],
             ['groups.html', reverse('groups')],
             ['group.html', reverse('group', kwargs={'slug': self.group.slug})],
             ['profile.html', reverse(
