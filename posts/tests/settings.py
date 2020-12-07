@@ -62,15 +62,14 @@ class Settings(TestCase):
             )
 
         Group.objects.create(
-            id=1,
             title='Название группы',
             slug='test-slug',
             description='Описание группы'
         )
         Post.objects.create(
             text='Тестовый текст' * 5,
-            author_id=1,
-            group_id=1,
+            author=user,
+            group=Group.objects.first(),
             image=SimpleUploadedFile(
                 name='small_.gif',
                 content=cls.gif,
