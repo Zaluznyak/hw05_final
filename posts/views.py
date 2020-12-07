@@ -108,7 +108,7 @@ def post_view(request, username, post_id):
     context = {
         'post': post,
         'count': count,
-        'for_pytest': comments,  # костыль.
+        'for_pytest': comments,  # костыль для pytest.
         'comments': page,
         'form': form,
         'paginator': paginator,
