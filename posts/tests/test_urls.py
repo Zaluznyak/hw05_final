@@ -11,36 +11,43 @@ class UrlTests(Settings):
             '/': [200, 200, reverse('index')],
             '/group/': [200, 200, reverse('groups')],
             '/group/test-slug/': [
-                200, 200, reverse('group', kwargs={'slug': 'test-slug'})
+                200, 200, reverse('group',
+                                  kwargs={'slug': UrlTests.group.slug})
                 ],
             '/new/': [200, 302, reverse('new_post')],
             '/about-author/': [200, 200, reverse('about')],
             '/about-spec/': [200, 200, reverse('spec')],
             '/test/': [
                 200, 200,
-                reverse('profile', kwargs={'username': 'test'})
+                reverse('profile', kwargs={'username': UrlTests.User.username})
                 ],
             '/test/1/': [
                 200, 200,
-                reverse('post', kwargs={'username': 'test', 'post_id': 1})
+                reverse('post', kwargs={'username': UrlTests.User.username,
+                                        'post_id': UrlTests.post.id})
             ],
             '/test/1/edit/': [
                 200, 302,
-                reverse('post_edit', kwargs={'username': 'test', 'post_id': 1})
+                reverse(
+                    'post_edit', kwargs={'username': UrlTests.User.username,
+                                         'post_id': UrlTests.post.id})
             ],
             '/test/1/comment/': [
                 302, 302,
                 reverse('add_comment',
-                        kwargs={'username': 'test', 'post_id': 1})
+                        kwargs={'username': UrlTests.User.username,
+                                'post_id': UrlTests.post.id})
                         ],
             '/follow/': [200, 302, reverse('follow_index')],
             '/test2/follow/': [
                 302, 302,
-                reverse('profile_follow', kwargs={'username': 'test2'})
+                reverse('profile_follow',
+                        kwargs={'username': UrlTests.User2.username})
                 ],
             '/test2/unfollow/': [
                 302, 302,
-                reverse('profile_unfollow', kwargs={'username': 'test2'})
+                reverse('profile_unfollow',
+                        kwargs={'username': UrlTests.User2.username})
                 ]
         }
 
