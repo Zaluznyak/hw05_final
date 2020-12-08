@@ -266,6 +266,8 @@ class ViewsTests(Settings):
         self.authorized_client.get(
             reverse('profile_follow', kwargs={'username': self.User.username})
              )
+        self.assertFalse(self.User.follower.count() > (count + 1),
+                         'Нельзя подписываться на самого себя!')
 
     def test_unfollow(self):
         """Отписка работает."""
