@@ -5,37 +5,50 @@ from .settings import Settings
 
 
 class FormTests(Settings):
-    def test_add_post(self):
+    def test_add_post_image(self):
         """Пост добавлен в БД, после отправки попали на главную страницу."""
         post_count = Post.objects.all().count()
-        files = (
-            (self.gif_file, post_count + 1, 'Пост не был добавлен'),
-            (self.txt_file, post_count + 1, 'Текст вместо img был добавлен'),
+        files = (self.gif_file, post_count + 1, 'Пост не был добавлен')
+        uploaded, count, msg = files
+        form_data = {
+            'text': 'Тестовый текст' * 5,
+            'author': self.User,
+            'image': uploaded
+            }
+        response = self.authorized_client.post(
+            reverse('new_post'),
+            data=form_data,
+            follow=True
+            )
+        self.assertEqual(
+            Post.objects.count(),
+            count,
+            msg
+            )
+        self.assertRedirects(
+            response,
+            reverse('index'),
+            msg_prefix=('После отправки поста, '
+                        'не попали на главную страницу')
+            )
+
+    def test_add_post_not_image(self):
+        """Пост с файлом неверного формата вызвал исключение."""
+        form_data = {
+            'text': 'Тестовый текст' * 5,
+            'author': self.User,
+            'image': self.txt_file
+            }
+        response = self.authorized_client.post(
+            reverse('new_post'),
+            data=form_data,
+            follow=True
+            )
+        self.assertFormError(
+            response, 'form', 'image',
+            ('Загрузите правильное изображение. Файл, который вы загрузили, '
+             'поврежден или не является изображением.')
         )
-        for uploaded, count, msg in files:
-            form_data = {
-                'text': 'Тестовый текст' * 5,
-                'author': self.User,
-                'image': uploaded
-                }
-            response = self.authorized_client.post(
-                reverse('new_post'),
-                data=form_data,
-                follow=True
-                )
-            with self.subTest(file=uploaded.name):
-                self.assertEqual(
-                    Post.objects.count(),
-                    count,
-                    msg
-                    )
-                if(uploaded.name != 'small.txt'):
-                    self.assertRedirects(
-                        response,
-                        reverse('index'),
-                        msg_prefix=('После отправки поста, '
-                                    'не попали на главную страницу')
-                        )
 
     def test_edit_post(self):
         """Пост имзенен, запись в БД сохранена, новый пост не создан."""
@@ -81,8 +94,8 @@ class FormTests(Settings):
                                     ' на страницу с постом')
                         )
 
-    def test_add_comment(self):
-        """Комментарий добавлен верно."""
+    def test_add_comment_authorized(self):
+        """Комментарий для авторизованного пользователя добавлен верно."""
         form_data = {
                 'text': 'Тестовый текст' * 5
                 }
@@ -96,10 +109,19 @@ class FormTests(Settings):
                     )
         self.assertEqual(self.post.comments.all().count(), cnt_comments + 1,
                          'Комментарий не был добавлен')
+
+    def test_add_comment_guest(self):
+        """Комментарий не был добавлен гостем."""
+        form_data = {
+                'text': 'Тестовый текст' * 5
+                }
+        cnt_comments = self.post.comments.all().count()
+        rvs = reverse('add_comment', kwargs={'username': self.User.username,
+                      'post_id': self.post.id})
         self.guest_client.post(
                     rvs,
                     data=form_data,
                     follow=True
                     )
-        self.assertFalse(self.post.comments.all().count() > (cnt_comments + 1),
+        self.assertFalse(self.post.comments.all().count() > cnt_comments,
                          'Комментарий был добавлен гостем')

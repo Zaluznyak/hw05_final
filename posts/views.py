@@ -68,7 +68,7 @@ def profile(request, username):
     author = get_object_or_404(User, username=username)
     all_posts = author.posts.all()
     if request.user.is_authenticated:
-        following = request.user.follower.filter(author=author).count() != 0
+        following = request.user.follower.filter(author=author).exists()
     else:
         following = False
     count_follower = author.following.all().count()
